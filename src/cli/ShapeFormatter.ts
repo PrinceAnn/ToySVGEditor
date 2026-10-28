@@ -14,7 +14,12 @@ export class ShapeFormatter {
     const shape = document.requireShape(id);
     const parent = shape.parent?.id ? shape.parent.label : 'svg';
     const lines = [`${shape.label}  parent=${parent}`];
-    for (const [name, value] of shape.attributes) lines.push(`  ${name}=${value}`);
+    const styles = new Set(['fill', 'stroke', 'stroke-width']);
+    const geometry = [...shape.attributes].filter(([name]) => !styles.has(name));
+    if (geometry.length) lines.push(`  ${geometry.map(([name, value]) => `${name}=${value}`).join(' ')}`);
+    for (const [name, value] of shape.attributes) {
+      if (styles.has(name)) lines.push(`  ${name}=${value}`);
+    }
     if (shape.text !== undefined) lines.push(`  text=${JSON.stringify(shape.text)}`);
     return lines;
   }
